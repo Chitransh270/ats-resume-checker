@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ATS Resume Checker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#ffffff;--bg2:#f5f5f3;--bg3:#ebebea;
+    --text:#111111;--text2:#555550;--text3:#888880;
+    --border:rgba(0,0,0,0.15);--border2:rgba(0,0,0,0.3);
+    --radius-md:8px;--radius-lg:12px;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#1a1a18;--bg2:#242422;--bg3:#2e2e2b;
+      --text:#f0f0ec;--text2:#a8a8a0;--text3:#6a6a65;
+      --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.25);
+    }
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;padding:2rem 1rem}
+  .app{max-width:720px;margin:0 auto}
+  .header{margin-bottom:2rem}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:#E6F1FB;color:#0C447C;font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+  .title{font-size:26px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:6px}
+  .subtitle{font-size:14px;color:var(--text2);line-height:1.7}
+  .api-banner{background:#FAEEDA;border:0.5px solid #EF9F27;border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:1.5rem;font-size:13px;color:#633806;display:flex;gap:10px;align-items:flex-start}
+  .api-banner input{flex:1;font-family:inherit;font-size:13px;color:var(--text);background:var(--bg);border:0.5px solid var(--border2);border-radius:var(--radius-md);padding:7px 10px;outline:none;margin-top:6px;width:100%}
+  .card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+  .card-label{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px}
+  input[type=text],textarea{width:100%;font-family:inherit;font-size:14px;color:var(--text);background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-md);padding:10px 12px;outline:none;transition:border-color 0.15s}
+  input[type=text]:focus,textarea:focus{border-color:#185FA5;background:var(--bg);box-shadow:0 0 0 3px rgba(24,95,165,0.1)}
+  textarea{resize:vertical;min-height:110px;line-height:1.6}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  @media(max-width:500px){.two-col{grid-template-columns:1fr}}
+  .upload-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-md);padding:2rem 1rem;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg2)}
+  .upload-zone:hover{border-color:#185FA5;background:#E6F1FB}
+  .upload-zone.has-file{border-style:solid;border-color:#0F6E56;background:#E1F5EE}
+  .upload-icon{font-size:30px;margin-bottom:8px;color:var(--text3)}
+  .upload-text{font-size:13px;color:var(--text2)}
+  .upload-name{font-size:13px;color:#0F6E56;font-weight:500;margin-top:6px}
+  .divider{display:flex;align-items:center;gap:10px;margin:12px 0;font-size:12px;color:var(--text3)}
+  .divider::before,.divider::after{content:'';flex:1;height:0.5px;background:var(--border)}
+  .btn-analyze{width:100%;padding:14px;background:#185FA5;color:#fff;border:none;border-radius:var(--radius-md);font-size:15px;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;letter-spacing:0.01em}
+  .btn-analyze:hover:not(:disabled){background:#0C447C;transform:translateY(-1px)}
+  .btn-analyze:active{transform:translateY(0)}
+  .btn-analyze:disabled{opacity:0.55;cursor:not-allowed;transform:none}
+  .results{margin-top:1.5rem}
+  .score-ring{display:flex;flex-direction:column;align-items:center;margin:0 auto 1.5rem}
+  .ring-wrap{position:relative;width:130px;height:130px}
+  .ring-wrap svg{transform:rotate(-90deg)}
+  .ring-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+  .ring-num .num{font-size:32px;font-weight:700}
+  .ring-num .lbl{font-size:11px;color:var(--text3);margin-top:-2px}
+  .section-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+  .section-head{font-size:15px;font-weight:600;margin:0 0 12px;display:flex;align-items:center;gap:8px;color:var(--text)}
+  .tag-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px}
+  .tag{font-size:12px;padding:4px 10px;border-radius:20px;font-weight:500;display:inline-flex;align-items:center;gap:4px}
+  .tag-found{background:#EAF3DE;color:#3B6D11}
+  .tag-missing{background:#FCEBEB;color:#A32D2D}
+  .tag-add{background:#FAEEDA;color:#854F0B}
+  .suggestion-item{padding:12px;border-radius:var(--radius-md);margin-bottom:8px;border-left:3px solid;font-size:13px;line-height:1.6;background:var(--bg2)}
+  .sug-strength{border-left-color:#1D9E75}
+  .sug-improve{border-left-color:#BA7517}
+  .sug-add{border-left-color:#E24B4A}
+  .sug-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+  .sug-label.str{color:#0F6E56}
+  .sug-label.imp{color:#854F0B}
+  .sug-label.add{color:#A32D2D}
+  .highlight-item{background:var(--bg2);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:10px;font-size:13px;line-height:1.6;border:0.5px solid var(--border)}
+  .hl-before{color:var(--text2);margin-bottom:8px;padding-bottom:8px;border-bottom:0.5px solid var(--border)}
+  .hl-after{color:#0C447C;font-weight:500}
+  .arrow-badge{font-size:11px;background:#E6F1FB;color:#185FA5;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block;margin:6px 0}
+  .hl-reason{font-size:12px;color:var(--text3);margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border)}
+  .spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px}
+  .pill-good{background:#EAF3DE;color:#3B6D11}
+  .pill-avg{background:#FAEEDA;color:#854F0B}
+  .pill-poor{background:#FCEBEB;color:#A32D2D}
+  .bar-wrap{margin-bottom:12px}
+  .bar-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+  .bar-bg{background:var(--bg2);border-radius:20px;height:7px;overflow:hidden;border:0.5px solid var(--border)}
+  .bar-fill{height:100%;border-radius:20px;transition:width 0.6s ease}
+  .summary-card{border-left:4px solid #185FA5}
+  input[type=file]{display:none}
+  .reset-btn{font-size:13px;color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline;font-family:inherit;margin:1rem auto;display:block}
+  .kbd{font-family:monospace;background:var(--bg3);border:0.5px solid var(--border2);border-radius:4px;padding:1px 6px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="badge"><i class="ti ti-scan"></i> ATS Resume Checker</div>
+    <h1 class="title">Get past the bots, land the interview</h1>
+    <p class="subtitle">Upload your resume, add the job description, and get AI-powered keyword suggestions and rewrite tips tuned for applicant tracking systems.</p>
+  </div>
+
+  <div class="api-banner">
+    <i class="ti ti-key" style="font-size:18px;margin-top:1px;flex-shrink:0"></i>
+    <div style="flex:1">
+      <strong>Anthropic API Key required</strong> — this tool calls Claude directly from your browser. Your key is never stored.
+      <br><a href="https://console.anthropic.com/keys" target="_blank" style="color:#854F0B;font-size:12px">Get your API key →</a>
+      <input type="password" id="api-key" placeholder="sk-ant-api03-…" />
+    </div>
+  </div>
+
+  <div id="form-section">
+    <div class="card">
+      <div class="card-label">Job details</div>
+      <div class="two-col">
+        <input type="text" id="company" placeholder="Company name (e.g. Google)" />
+        <input type="text" id="role" placeholder="Role / Job title" />
+      </div>
+      <textarea id="jd" placeholder="Paste the full job description or list of responsibilities here…"></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Your resume</div>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+        <div class="upload-icon"><i class="ti ti-file-text"></i></div>
+        <div class="upload-text">Click to upload your resume</div>
+        <div class="upload-text" style="font-size:12px;color:var(--text3);margin-top:3px">PDF or Word (.docx) — max 5MB</div>
+        <div class="upload-name" id="file-name"></div>
+        <input type="file" id="file-input" accept=".pdf,.doc,.docx" onchange="handleFile(this)"/>
+      </div>
+      <div class="divider">or paste resume text</div>
+      <textarea id="resume-text" placeholder="Paste your resume content here…" style="min-height:140px"></textarea>
+    </div>
+
+    <button class="btn-analyze" id="analyze-btn" onclick="analyze()">
+      <i class="ti ti-sparkles"></i> Analyze my resume
+    </button>
+  </div>
+
+  <div class="results" id="results" style="display:none"></div>
+</div>
+
+<script>
+let fileText = '';
+let pdfBase64 = '';
+
+function handleFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  document.getElementById('file-name').textContent = file.name;
+  const zone = document.getElementById('upload-zone');
+  zone.classList.add('has-file');
+  zone.querySelector('.upload-icon').innerHTML = '<i class="ti ti-check" style="color:#0F6E56"></i>';
+  const reader = new FileReader();
+  if(file.type === 'application/pdf' || file.name.endsWith('.pdf')){
+    reader.onload = e => { pdfBase64 = e.target.result.split(',')[1]; fileText = ''; };
+    reader.readAsDataURL(file);
+  } else {
+    reader.onload = e => { fileText = e.target.result; pdfBase64 = ''; };
+    reader.readAsText(file);
+  }
+}
+
+function scoreColor(s){ return s>=75?'#1D9E75':s>=50?'#BA7517':'#E24B4A'; }
+
+function renderRing(score){
+  const r=57, circ=2*Math.PI*r, dash=(score/100)*circ, c=scoreColor(score);
+  const pillClass=score>=75?'pill-good':score>=50?'pill-avg':'pill-poor';
+  const pillText=score>=75?'Strong match':score>=50?'Moderate match':'Weak match';
+  return `<div class="score-ring">
+    <div class="ring-wrap">
+      <svg width="130" height="130" viewBox="0 0 130 130">
+        <circle cx="65" cy="65" r="${r}" fill="none" stroke="var(--bg3)" stroke-width="11"/>
+        <circle cx="65" cy="65" r="${r}" fill="none" stroke="${c}" stroke-width="11"
+          stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-linecap="round"/>
+      </svg>
+      <div class="ring-num"><div class="num" style="color:${c}">${score}</div><div class="lbl">/ 100</div></div>
+    </div>
+    <div style="margin-top:10px"><span class="pill ${pillClass}"><i class="ti ti-target"></i> ${pillText}</span></div>
+  </div>`;
+}
+
+async function analyze(){
+  const apiKey = document.getElementById('api-key').value.trim();
+  if(!apiKey){ alert('Please enter your Anthropic API key.'); return; }
+  const jd = document.getElementById('jd').value.trim();
+  const company = document.getElementById('company').value.trim();
+  const role = document.getElementById('role').value.trim();
+  const pastedText = document.getElementById('resume-text').value.trim();
+  if(!jd){ alert('Please add the job description.'); return; }
+  if(!pastedText && !fileText && !pdfBase64){ alert('Please upload your resume or paste resume text.'); return; }
+
+  const btn = document.getElementById('analyze-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Scanning resume…';
+  document.getElementById('results').style.display='none';
+
+  const systemPrompt = `You are an expert ATS resume analyst and career coach. Analyze the resume against the job description and return ONLY valid JSON (no markdown, no code fences) with this structure:
+{"ats_score":<0-100>,"score_breakdown":{"keyword_match":<0-100>,"skills_alignment":<0-100>,"experience_relevance":<0-100>,"formatting_ats":<0-100>},"keywords_found":[<max 12>],"keywords_missing":[<max 12>],"keywords_to_add":[<max 10>],"suggestions":[{"type":"strength"|"improve"|"add","text":"..."}],"bullet_rewrites":[{"original":"...","improved":"...","reason":"..."}],"summary_recommendation":"..."}
+Include 8-12 suggestions and 3-5 bullet rewrites.`;
+
+  const userContent = `Company: ${company||'Not specified'}\nRole: ${role||'Not specified'}\n\nJOB DESCRIPTION:\n${jd}\n\nRESUME:\n${pastedText||fileText||'[See attached PDF]'}`;
+
+  let messages;
+  if(pdfBase64 && !pastedText && !fileText){
+    messages = [{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:pdfBase64}},{type:'text',text:userContent}]}];
+  } else {
+    messages = [{role:'user',content:userContent}];
+  }
+
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:systemPrompt,messages})
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message);
+    const raw = data.content.map(b=>b.text||'').join('');
+    const result = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderResults(result, company, role);
+  } catch(e){
+    document.getElementById('results').innerHTML=`<div class="section-card" style="border-left:3px solid #E24B4A"><strong>Error</strong><br><small style="color:var(--text2)">${e.message}</small></div>`;
+    document.getElementById('results').style.display='block';
+  }
+  btn.disabled=false;
+  btn.innerHTML='<i class="ti ti-sparkles"></i> Analyze again';
+}
+
+function renderResults(r, company, role){
+  const c=scoreColor(r.ats_score);
+  const bd=r.score_breakdown||{};
+
+  const breakdown = Object.entries(bd).map(([k,v])=>{
+    const label=k.replace(/_/g,' ').replace(/\b\w/g,x=>x.toUpperCase());
+    const col=scoreColor(v);
+    return `<div class="bar-wrap"><div class="bar-row"><span style="color:var(--text2)">${label}</span><span style="font-weight:600;color:${col}">${v}/100</span></div><div class="bar-bg"><div class="bar-fill" style="width:${v}%;background:${col}"></div></div></div>`;
+  }).join('');
+
+  const kw = `
+    <div style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Found in resume</div>
+    <div class="tag-grid">${(r.keywords_found||[]).map(k=>`<span class="tag tag-found"><i class="ti ti-check" style="font-size:11px"></i>${k}</span>`).join('')||'<span style="font-size:13px;color:var(--text3)">None detected</span>'}</div>
+    <div style="font-size:12px;font-weight:600;color:var(--text3);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.05em">Missing — add these</div>
+    <div class="tag-grid">${(r.keywords_missing||[]).map(k=>`<span class="tag tag-missing"><i class="ti ti-x" style="font-size:11px"></i>${k}</span>`).join('')}</div>
+    <div style="font-size:12px;font-weight:600;color:var(--text3);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.05em">Power keywords to boost ATS score</div>
+    <div class="tag-grid">${(r.keywords_to_add||[]).map(k=>`<span class="tag tag-add"><i class="ti ti-plus" style="font-size:11px"></i>${k}</span>`).join('')}</div>`;
+
+  const sugs = (r.suggestions||[]).map(s=>{
+    const cls=s.type==='strength'?'sug-strength':s.type==='improve'?'sug-improve':'sug-add';
+    const lbl=s.type==='strength'?'Strength':s.type==='improve'?'Improve':'Add';
+    const lblCls=s.type==='strength'?'str':s.type==='improve'?'imp':'add';
+    const ic=s.type==='strength'?'ti-check':s.type==='improve'?'ti-edit':'ti-plus';
+    return `<div class="suggestion-item ${cls}"><div class="sug-label ${lblCls}"><i class="ti ${ic}" style="font-size:11px"></i>${lbl}</div>${s.text}</div>`;
+  }).join('');
+
+  const rewrites = (r.bullet_rewrites||[]).map(b=>`
+    <div class="highlight-item">
+      <div class="hl-before"><span style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Before</span><br>${b.original}</div>
+      <div class="arrow-badge">→ Improved</div>
+      <div class="hl-after">${b.improved}</div>
+      ${b.reason?`<div class="hl-reason"><i class="ti ti-info-circle" style="font-size:12px"></i> ${b.reason}</div>`:''}
+    </div>`).join('');
+
+  document.getElementById('results').innerHTML = `
+    <div style="margin-bottom:1.5rem">
+      ${renderRing(r.ats_score)}
+      ${company||role?`<div style="text-align:center;font-size:13px;color:var(--text2);margin-top:-4px">for <strong>${role||'this role'}</strong>${company?' at <strong>'+company+'</strong>':''}</div>`:''}
+    </div>
+    <div class="section-card"><div class="section-head"><i class="ti ti-chart-bar"></i> Score breakdown</div>${breakdown}</div>
+    <div class="section-card"><div class="section-head"><i class="ti ti-key"></i> Keyword analysis</div>${kw}</div>
+    <div class="section-card"><div class="section-head"><i class="ti ti-bulb"></i> Recommendations</div>${sugs}</div>
+    ${rewrites?`<div class="section-card"><div class="section-head"><i class="ti ti-writing"></i> Bullet point rewrites</div><p style="font-size:13px;color:var(--text2);margin-bottom:12px">ATS-optimized rewrites for stronger impact</p>${rewrites}</div>`:''}
+    <div class="section-card summary-card"><div class="section-head" style="margin-bottom:8px"><i class="ti ti-message-circle"></i> Overall recommendation</div><p style="font-size:14px;line-height:1.7">${r.summary_recommendation}</p></div>
+    <button class="reset-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Edit inputs and re-analyze</button>`;
+
+  document.getElementById('results').style.display='block';
+  document.getElementById('results').scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>
